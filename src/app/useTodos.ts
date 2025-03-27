@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { todosActions } from "./actions/todos/todosActions";
 import { Todo } from "./types";
 import _ from "lodash";
@@ -8,8 +8,10 @@ const LIMIT = 10;
 
 export const useTodos = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [todoTitle, setTodoTitle] = useState<string>("");
+  const [newTodoTitle, setNewTodoTitle] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const isFirstTime = useRef(true);
+  const savedTitle = useRef<string>("");
 
   const [paginationData, setPaginationData] = useState({
     hasMore: true,
@@ -22,12 +24,12 @@ export const useTodos = () => {
       ...paginationData,
       isLoading: true,
     });
-    const data = await todosActions.getTodos(paginationData.next, LIMIT);
-    setTodos(data.data);
+    const res = await todosActions.getTodos(paginationData.next, LIMIT);
+    setTodos(res.data);
 
     setPaginationData({
-      hasMore: data.data.length < data.total,
-      next: data.next,
+      hasMore: res.data.length < res.total,
+      next: res.next,
       isLoading: false,
     });
   };
@@ -35,7 +37,17 @@ export const useTodos = () => {
   const debouncedUpdateTitle = useMemo(
     () =>
       _.debounce(async (id: number, title: string) => {
-        todosActions.updateTodo(id, title);
+        try {
+          await todosActions.updateTodo(id, title);
+        } catch {
+          setTodos((prevTodos) =>
+            prevTodos.map((todo) =>
+              todo.id === id ? { ...todo, title: savedTitle.current } : todo
+            )
+          );
+        } finally {
+          isFirstTime.current = true;
+        }
       }, 3000),
     []
   );
@@ -47,37 +59,53 @@ export const useTodos = () => {
   }, [debouncedUpdateTitle]);
 
   const handleTitleUpdate = async (id: number, title: string) => {
+    if (isFirstTime.current === true) {
+      savedTitle.current = todos.find((todo) => todo.id === id)!.title;
+      isFirstTime.current = false;
+    }
+
     setTodos((prevTodos) =>
       prevTodos.map((todo) => (todo.id === id ? { ...todo, title } : todo))
     );
-    debouncedUpdateTitle(id, title);
+
+    await debouncedUpdateTitle(id, title);
   };
 
   const handleTodoToggle = async (id: number) => {
-    setTodos((prevTodos) =>
-      prevTodos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
-    await todosActions.toggleTodo(id);
+    const savedTodos = [...todos];
+    try {
+      setTodos((prevTodos) =>
+        prevTodos.map((todo) =>
+          todo.id === id ? { ...todo, completed: !todo.completed } : todo
+        )
+      );
+      await todosActions.toggleTodo(id);
+    } catch {
+      setTodos(savedTodos);
+    }
   };
 
   const handleDelete = async (id: number) => {
-    setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
-    await todosActions.removeTodo(id);
+    const savedTodos = [...todos];
+    try {
+      setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
+      await todosActions.removeTodo(id);
+    } catch {
+      setTodos(savedTodos);
+    }
   };
 
   const handleAddTodo = async () => {
-    const todo = await todosActions.addTodo(todoTitle);
+    const todo = await todosActions.addTodo(newTodoTitle);
     setTodos((prevTodos) => [todo.data, ...prevTodos]);
-    setTodoTitle("");
+    setNewTodoTitle("");
   };
 
-  const onTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTodoTitle(e.target.value);
+  const onNewTodoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTodoTitle(e.target.value);
   };
 
-  const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
 
@@ -97,13 +125,13 @@ export const useTodos = () => {
       isLoading: true,
     });
 
-    const data = await todosActions.getTodos(paginationData.next, LIMIT);
+    const res = await todosActions.getTodos(paginationData.next, LIMIT);
 
-    setTodos((prevTodos) => [...prevTodos, ...data.data]);
+    setTodos((prevTodos) => [...prevTodos, ...res.data]);
 
     setPaginationData({
-      hasMore: todos.length + data.data.length < data.total,
-      next: data.next,
+      hasMore: todos.length + res.data.length < res.total,
+      next: res.next,
       isLoading: false,
     });
   };
@@ -112,20 +140,18 @@ export const useTodos = () => {
     fetchData();
   }, []);
 
-  console.log("####### todos");
-
   return {
     isLoading: paginationData.isLoading,
     todos,
-    todoTitle,
+    newTodoTitle,
     searchQuery,
     hasMore: paginationData.hasMore,
     handleTitleUpdate,
     handleTodoToggle,
     handleDelete,
     handleAddTodo,
-    onTitleChange,
-    onSearchChange,
+    onNewTodoChange,
+    onQueryChange,
     onFetchMore,
     filteredTodos,
   };

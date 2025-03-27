@@ -8,15 +8,15 @@ import { useTodos } from "./useTodos";
 export default function Home() {
   const {
     filteredTodos,
-    todoTitle,
+    newTodoTitle,
     searchQuery,
     hasMore,
     handleTitleUpdate,
     handleTodoToggle,
     handleDelete,
     handleAddTodo,
-    onTitleChange,
-    onSearchChange,
+    onNewTodoChange,
+    onQueryChange,
     onFetchMore,
     isLoading,
   } = useTodos();
@@ -28,14 +28,14 @@ export default function Home() {
         <OutlinedInput
           value={searchQuery}
           fullWidth
-          onChange={onSearchChange}
+          onChange={onQueryChange}
           placeholder="Search..."
         />
         <div className={styles.inputContainer}>
           <OutlinedInput
-            value={todoTitle}
+            value={newTodoTitle}
             fullWidth
-            onChange={onTitleChange}
+            onChange={onNewTodoChange}
             placeholder="Add new todo..."
           />
           <Button variant="contained" color="primary" onClick={handleAddTodo}>
