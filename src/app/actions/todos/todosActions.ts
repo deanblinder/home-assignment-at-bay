@@ -1,4 +1,4 @@
-import { todosService } from "@/app/services/todos";
+import { todosService } from "@/app/services/todos/todosServices";
 
 export const todosActions = {
   getTodos: async (start?: number, limit?: number) => {
