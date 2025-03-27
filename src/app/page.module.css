@@ -10,13 +10,22 @@
 }
 
 .inputContainer {
+  background-color: "red";
   display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 10px;
   width: 100%;
-  max-width: 600px;
 }
 
 .todoList {
   width: 100%;
   max-width: 600px;
+}
+
+.inputsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
 }

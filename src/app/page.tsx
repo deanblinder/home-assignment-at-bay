@@ -1,18 +1,27 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styles from "./page.module.css";
 import { todosActions } from "./actions/todos/todosActions";
 import { Todo } from "./types";
 import TodoItem from "./components/todoItem";
-import { Button, OutlinedInput } from "@mui/material";
+import { Button, CircularProgress, OutlinedInput, Box } from "@mui/material";
+import InfiniteScroll from "react-infinite-scroll-component";
+
+const LIMIT = 10;
 
 export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [todoTitle, setTodoTitle] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [hasMore, setHasMore] = useState<boolean>(true); // New state for pagination
+  const [page, setPage] = useState<number>(1); // New state for pagination
+  const [total, setTotal] = useState<number>(0); // New state for pagination
 
   const fetchData = async () => {
     const data = await todosActions.getTodos();
     setTodos(data.data);
+    setTotal(data.total);
+    setHasMore(todos.length <= total);
   };
 
   const handleTodoUpdate = async (id: number, title: string) => {
@@ -46,6 +55,28 @@ export default function Home() {
     setTodoTitle(e.target.value);
   };
 
+  const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredTodos = useMemo(
+    () =>
+      todos.filter((todo) =>
+        todo.title.toLowerCase().includes(searchQuery.toLowerCase())
+      ),
+    [todos, searchQuery]
+  );
+
+  const onFetchMore = async () => {
+    const newPage = page + 1;
+    const data = await todosActions.getTodos(newPage, LIMIT);
+
+    setTodos((prevTodos) => [...prevTodos, ...data.data]);
+    setPage(newPage);
+
+    setHasMore(todos.length <= total);
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -53,22 +84,46 @@ export default function Home() {
   return (
     <div className={styles.page}>
       <h1>Todos: </h1>
-      <div className={styles.inputContainer}>
-        <OutlinedInput value={todoTitle} fullWidth onChange={onTitleChange} />
-        <Button variant="contained" color="primary" onClick={handleAddTodo}>
-          Add
-        </Button>
+      <div className={styles.inputsContainer}>
+        <OutlinedInput
+          value={searchQuery}
+          fullWidth
+          onChange={onSearchChange}
+          placeholder="Search..."
+        />
+        <div className={styles.inputContainer}>
+          <OutlinedInput
+            value={todoTitle}
+            fullWidth
+            onChange={onTitleChange}
+            placeholder="Add new todo..."
+          />
+          <Button variant="contained" color="primary" onClick={handleAddTodo}>
+            Add
+          </Button>
+        </div>
       </div>
       <div className={styles.todoList}>
-        {todos.map((todo) => (
-          <TodoItem
-            key={todo.id}
-            todo={todo}
-            onUpdate={handleTodoUpdate}
-            onToggle={handleTodoToggle}
-            onRemove={handleDelete}
-          />
-        ))}
+        <InfiniteScroll
+          dataLength={filteredTodos.length}
+          next={onFetchMore}
+          hasMore={hasMore}
+          loader={
+            <Box display="flex" justifyContent="center" width="100%" p={2}>
+              <CircularProgress />
+            </Box>
+          }
+        >
+          {filteredTodos.map((todo) => (
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              onUpdate={handleTodoUpdate}
+              onToggle={handleTodoToggle}
+              onRemove={handleDelete}
+            />
+          ))}
+        </InfiniteScroll>
       </div>
     </div>
   );
