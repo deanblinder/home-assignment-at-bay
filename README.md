@@ -35,40 +35,6 @@ npm run dev
 
 3. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Project Structure
-
-```
-src/
-  app/
-    actions/      # API actions and data fetching
-    api/          # API route handlers
-    components/   # Reusable React components
-    constants/    # Application constants
-    services/     # Business logic and services
-    types.ts      # TypeScript type definitions
-    useTodos.ts   # Custom hook for todo management
-    utils/        # Utility functions
-```
-
-## Features in Detail
-
-### Todo Management
-
-- Create new todos with a title
-- Edit todo titles with automatic saving (debounced)
-- Toggle todo completion status
-- Delete todos
-
-### Search and Filtering
-
-- Real-time search functionality
-- Filter todos based on title
-
-### Infinite Scrolling
-
-- Load todos in batches for better performance
-- Automatic loading of more todos when scrolling
-
 ### Optimizations
 
 - Debounced title updates to prevent excessive API calls
