@@ -19,6 +19,12 @@ A modern, feature-rich Todo application built with Next.js, React, and Material-
 - **Styling**: CSS Modules
 - **Type Safety**: TypeScript
 
+### Optimizations
+
+- Debounced title updates to prevent excessive API calls
+- Memoized components for better performance
+- Optimistic updates for better user experience
+
 ## Getting Started
 
 1. Install dependencies:
@@ -34,9 +40,3 @@ npm run dev
 ```
 
 3. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-### Optimizations
-
-- Debounced title updates to prevent excessive API calls
-- Memoized components for better performance
-- Optimistic updates for better user experience
