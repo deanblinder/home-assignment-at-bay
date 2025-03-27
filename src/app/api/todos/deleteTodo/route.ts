@@ -6,6 +6,7 @@ export async function DELETE(request: Request) {
     const { id } = await request.json();
 
     const todoIndex = TODOS.findIndex((todo) => todo.id === id);
+
     if (todoIndex === -1) {
       return NextResponse.json(
         { error: `Todo with id ${id} not found` },

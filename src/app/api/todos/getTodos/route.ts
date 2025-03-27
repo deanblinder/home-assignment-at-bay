@@ -3,7 +3,7 @@ import { TODOS } from "@/app/constants/todos";
 
 export async function POST(request: Request) {
   try {
-    const { start = 0, limit = 10 } = await request.json();
+    const { start = 0, limit = TODOS.length } = await request.json();
 
     const paginatedTodos = TODOS.slice(start, start + limit);
 

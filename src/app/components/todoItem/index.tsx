@@ -7,24 +7,20 @@ import Checkbox from "@mui/material/Checkbox";
 import { OutlinedInput } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Todo } from "@/app/types";
+import { useTodoItem } from "./useTodoItem";
 
-type TodoProps = {
+export type TodoItemProps = {
   todo: Todo;
-  onUpdate: (id: number, title: string) => Promise<void>;
+  onTitleUpdate: (id: number, title: string) => Promise<void>;
   onRemove: (id: number) => void;
   onToggle: (id: number) => void;
 };
 
-export default function TodoItem(props: TodoProps) {
-  const { todo, onUpdate, onRemove, onToggle } = props;
+const TodoItem = React.memo((props: TodoItemProps) => {
+  TodoItem.displayName = "TodoItem";
+  const { todo, onRemove } = props;
 
-  const handleTodoToggle = () => {
-    onToggle(todo.id);
-  };
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onUpdate(todo.id, e.target.value);
-  };
+  const { handleTodoToggle, handleTitleChange } = useTodoItem(props);
 
   return (
     <ListItem>
@@ -41,4 +37,6 @@ export default function TodoItem(props: TodoProps) {
       </ListItemButton>
     </ListItem>
   );
-}
+});
+
+export default TodoItem;

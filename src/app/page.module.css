@@ -3,14 +3,14 @@
   flex-direction: column;
   align-items: center;
   gap: 20px;
-  padding: 2rem;
+  padding: 1rem;
   max-width: 800px;
   margin: 0 auto;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .inputContainer {
-  background-color: "red";
   display: flex;
   align-items: center;
   justify-content: center;
@@ -28,4 +28,24 @@
   flex-direction: column;
   gap: 10px;
   width: 100%;
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 0.5rem;
+    gap: 15px;
+  }
+
+  .inputContainer {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .inputContainer button {
+    width: 100%;
+  }
+
+  .todoList {
+    max-width: 100%;
+  }
 }

@@ -13,7 +13,7 @@ export const todosActions = {
   removeTodo: async (id: number) => {
     return await todosService.removeTodo(id);
   },
-  addTodo: async (title: string) => {
-    return await todosService.addTodo(title);
+  addTodo: async (title: string, userId?: number) => {
+    return await todosService.addTodo(title, userId);
   },
 };

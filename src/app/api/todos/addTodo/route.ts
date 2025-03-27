@@ -5,14 +5,18 @@ import { TODOS } from "@/app/constants/todos";
 
 export async function POST(request: Request) {
   try {
-    const { title } = await request.json();
+    const { title, userId = 1 } = await request.json();
+
     if (!title) {
       return NextResponse.json({ error: "Title is required" }, { status: 400 });
     }
 
+    const newId =
+      TODOS.length > 0 ? Math.max(...TODOS.map((t: Todo) => t.id)) + 1 : 1;
+
     const newTodo: Todo = {
-      userId: 1, // TODO: get user id
-      id: TODOS.length > 0 ? Math.max(...TODOS.map((t: Todo) => t.id)) + 1 : 1,
+      userId,
+      id: newId,
       title,
       completed: false,
     };

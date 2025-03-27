@@ -12,19 +12,18 @@ export const todosService = {
 
       return response.json();
     } catch (error) {
-      console.log("##### ERROR");
       console.error("Error fetching todos:", error);
       throw error;
     }
   },
-  addTodo: async (title: string) => {
+  addTodo: async (title: string, userId?: number) => {
     try {
       const response = await fetch("/api/todos/addTodo", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title }),
+        body: JSON.stringify({ title, userId }),
       });
       if (!response.ok) throw new Error("Failed to add todo");
 
