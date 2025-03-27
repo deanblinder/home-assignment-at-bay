@@ -27,11 +27,15 @@ export default function TodoItem(props: TodoProps) {
   };
 
   return (
-    <ListItem sx={{ width: "auto" }}>
+    <ListItem>
       <ListItemIcon>
         <Checkbox checked={todo.completed} onClick={handleTodoToggle} />
       </ListItemIcon>
-      <OutlinedInput value={todo.title} onChange={handleTitleChange} />
+      <OutlinedInput
+        sx={{ width: "100%" }}
+        value={todo.title}
+        onChange={handleTitleChange}
+      />
       <ListItemButton onClick={() => onRemove(todo.id)}>
         <DeleteIcon />
       </ListItemButton>

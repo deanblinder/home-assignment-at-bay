@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+
 import { Todo } from "@/app/types";
+import { TODOS } from "@/app/constants/todos";
 
 export async function POST(request: Request) {
   try {
@@ -10,21 +10,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Title is required" }, { status: 400 });
     }
 
-    const todosPath = path.join(process.cwd(), "src/app/todos.json");
-    const todosData = JSON.parse(fs.readFileSync(todosPath, "utf-8"));
-
     const newTodo: Todo = {
       userId: 1, // TODO: get user id
-      id:
-        todosData.length > 0
-          ? Math.max(...todosData.map((t: Todo) => t.id)) + 1
-          : 1,
+      id: TODOS.length > 0 ? Math.max(...TODOS.map((t: Todo) => t.id)) + 1 : 1,
       title,
       completed: false,
     };
 
-    todosData.push(newTodo);
-    fs.writeFileSync(todosPath, JSON.stringify(todosData, null, 2));
+    TODOS.unshift(newTodo);
 
     return NextResponse.json({ data: newTodo });
   } catch (error) {

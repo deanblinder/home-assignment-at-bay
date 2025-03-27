@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import todos from "../../../todos.json";
 import { TODOS } from "@/app/constants/todos";
 
 export async function POST(request: Request) {
@@ -10,8 +9,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       data: paginatedTodos,
-      total: todos.length,
-      next: start + limit < todos.length ? start + limit : null,
+      total: TODOS.length,
+      next: start + limit < TODOS.length ? start + limit : null,
     });
   } catch (error) {
     return NextResponse.json(
